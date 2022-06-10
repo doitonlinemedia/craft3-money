@@ -48,7 +48,7 @@ class MoneyField extends Field implements SortableFieldInterface, PreviewableFie
      * @var string
      */
     public $preferredCurrencies = '';
-    public $excludedCurrencies = '';
+    public $excludedCurrencies  = '';
 
     // Static Methods
     // =========================================================================
@@ -105,7 +105,7 @@ class MoneyField extends Field implements SortableFieldInterface, PreviewableFie
      */
     public function getContentColumnType(): string
     {
-        return Schema::TYPE_JSON;
+        return Schema::TYPE_TEXT;
     }
 
     /**
@@ -127,13 +127,13 @@ class MoneyField extends Field implements SortableFieldInterface, PreviewableFie
             return null;
         }
 
-        if(is_array($value) && $value['amount'] === '') {
+        if (is_array($value) && $value['amount'] === '') {
             return null;
         }
 
         if (is_array($value)) {
             $moneyParser = Plugin::$plugin->money->getDecimalParser();
-            $value = $moneyParser->parse($value['amount'], $value['currency']);
+            $value       = $moneyParser->parse($value['amount'], $value['currency']);
         }
 
         if (is_string($value)) {
@@ -257,7 +257,7 @@ class MoneyField extends Field implements SortableFieldInterface, PreviewableFie
         return Craft::$app->getView()->renderTemplate(
             'money/_components/fields/Money_settings',
             [
-                'field' => $this,
+                'field'    => $this,
                 'settings' => $this->settings,
             ]
         );
@@ -366,36 +366,36 @@ class MoneyField extends Field implements SortableFieldInterface, PreviewableFie
         Craft::$app->getView()->registerAssetBundle(MoneyFieldAsset::class);
 
         // Get our id and namespace
-        $id = Craft::$app->getView()->formatInputId($this->handle);
+        $id           = Craft::$app->getView()->formatInputId($this->handle);
         $namespacedId = Craft::$app->getView()->namespaceInputId($id);
 
         $currencyOptions = $this->getCurrencyOptions();
 
         // Variables to pass down to our field JavaScript to let it namespace properly
         $jsonVars = [
-            'id' => $id,
-            'name' => $this->handle,
-            'namespace' => $namespacedId,
-            'prefix' => Craft::$app->getView()->namespaceInputId(''),
+            'id'              => $id,
+            'name'            => $this->handle,
+            'namespace'       => $namespacedId,
+            'prefix'          => Craft::$app->getView()->namespaceInputId(''),
             'currencyOptions' => $currencyOptions,
-            'locale' => \Craft::$app->locale->id,
+            'locale'          => \Craft::$app->locale->id,
         ];
 
         $jsonVars = Json::encode($jsonVars);
-        Craft::$app->getView()->registerJs("$('#{$namespacedId}-field').MoneyMoney(".$jsonVars.");");
+        Craft::$app->getView()->registerJs("$('#{$namespacedId}-field').MoneyMoney(" . $jsonVars . ");");
 
         // Render the input template
         return Craft::$app->getView()->renderTemplate(
             'money/_components/fields/Money_input',
             [
-                'name' => $this->handle,
-                'value' => $value,
-                'field' => $this,
-                'id' => $id,
-                'settings' => $this->settings,
-                'namespacedId' => $namespacedId,
+                'name'            => $this->handle,
+                'value'           => $value,
+                'field'           => $this,
+                'id'              => $id,
+                'settings'        => $this->settings,
+                'namespacedId'    => $namespacedId,
                 'currencyOptions' => $currencyOptions,
-                'step' => $value ? $currencyOptions[(string) $value->getCurrency()]['step'] : 1,
+                'step'            => $value ? $currencyOptions[(string)$value->getCurrency()]['step'] : 1,
             ]
         );
     }
@@ -403,7 +403,7 @@ class MoneyField extends Field implements SortableFieldInterface, PreviewableFie
     private function getCurrencyOptions(): array
     {
         $pluginSettings = Plugin::$plugin->getSettings();
-        $fieldSettings = $this->getSettings();
+        $fieldSettings  = $this->getSettings();
 
         $preferredCurrencies = array_map(
             'trim',
@@ -458,12 +458,12 @@ class MoneyField extends Field implements SortableFieldInterface, PreviewableFie
      */
     public function getSortOption(): array
     {
-        $field = ($this->columnPrefix ?: 'field_') . $this->handle;
+        $field   = ($this->columnPrefix ?: 'field_') . $this->handle;
         $orderBy = sprintf('CAST(JSON_UNQUOTE(JSON_EXTRACT(`%s`, \'$.amount\')) AS INT)', $field);
 
         return [
-            'label' => Craft::t('site', $this->name),
-            'orderBy' =>  [$orderBy, 'elements.id'],
+            'label'     => Craft::t('site', $this->name),
+            'orderBy'   => [$orderBy, 'elements.id'],
             'attribute' => 'field:' . $this->id,
         ];
     }
